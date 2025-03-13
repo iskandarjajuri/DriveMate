@@ -17,6 +17,10 @@ struct LoginView: View {
         endPoint: .bottomTrailing
     )
 
+    @State private var isChecklistSubmitted = false
+    @State private var isSafetyCommitted = false
+    @State private var isSOPRead = false
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -52,6 +56,8 @@ struct LoginView: View {
                             TextField("example@nusatoyotetsu.co.id", text: $viewModel.email)
                                 .keyboardType(.emailAddress)
                                 .textInputAutocapitalization(.none)
+                                .autocapitalization(.none)
+                                .disableAutocorrection(true)
                                 .padding(14)
                                 .background(
                                     RoundedRectangle(cornerRadius: 10)

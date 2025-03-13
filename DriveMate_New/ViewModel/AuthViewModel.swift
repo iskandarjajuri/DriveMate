@@ -9,6 +9,9 @@ class AuthViewModel: ObservableObject {
     @Published var isLoading: Bool = false  // Status loading saat login berlangsung
     @Published var user: UserModel? = nil  // Data user yang sedang login
     @Published var errorMessage: String?  // Pesan error jika login gagal
+    @Published var isLoggedIn: Bool = false
+    @Published var userType: String = ""
+    @Published var isCheckingAuth: Bool = false  // Status pemeriksaan autentikasi
     
     /// **Validasi apakah form bisa dikirim**
     var isFormValid: Bool {
@@ -18,13 +21,18 @@ class AuthViewModel: ObservableObject {
     /// **Inisialisasi ViewModel**
     /// - Fungsi ini akan memeriksa apakah ada user yang sudah login sebelumnya dari Keychain
     init() {
+        isCheckingAuth = true
         DispatchQueue.main.async {
             self.user = AuthService.shared.getLoggedInUser()
             if let user = self.user {
+                self.isLoggedIn = true
+                self.userType = user.userType.rawValue
                 print("✅ User ditemukan di Keychain: \(user.email)")
             } else {
+                self.isLoggedIn = false
                 print("❌ Tidak ada user yang login di Keychain.")
             }
+            self.isCheckingAuth = false
         }
     }
     
@@ -34,27 +42,30 @@ class AuthViewModel: ObservableObject {
     /// - Jika gagal, menampilkan pesan error
     func login() {
         print("🔍 Mencoba login dengan email: \(email)")
-        
+
         guard isFormValid else {
             errorMessage = "Email dan Password harus diisi!"
             print("❌ Form tidak valid!")
             return
         }
-        
+
         isLoading = true
         errorMessage = nil
-        
+
         AuthService.shared.login(email: email, password: password) { [weak self] result in
             DispatchQueue.main.async {
-                self?.isLoading = false
-                
+                guard let self = self else { return }
+                self.isLoading = false
+
                 switch result {
                 case .success(let user):
                     print("✅ Login berhasil! User: \(user.email), Role: \(user.userType)")
-                    self?.user = user
+                    self.user = user
+                    self.isLoggedIn = true
+                    self.userType = user.userType.rawValue
                 case .failure(let error):
                     print("❌ Login gagal: \(error.localizedDescription)")
-                    self?.errorMessage = error.localizedDescription
+                    self.errorMessage = error.localizedDescription
                 }
             }
         }
@@ -65,22 +76,23 @@ class AuthViewModel: ObservableObject {
     /// - Mengosongkan semua variabel di ViewModel
     func logout() {
         print("🔓 Logout dipanggil, menghapus user dari Keychain.")
-        
+        isCheckingAuth = true
         AuthService.shared.logout { [weak self] in
             DispatchQueue.main.async {
                 self?.resetState()
+                self?.isCheckingAuth = false
                 print("✅ Logout berhasil, state direset.")
             }
         }
     }
-    
-    /// **Reset State**
-    /// - Membersihkan input email dan password setelah logout
+
     private func resetState() {
         email = ""
         password = ""
         isLoading = false
         errorMessage = nil
-        user = nil  // ✅ Pastikan user dihapus agar UI kembali ke login
+        user = nil
+        isLoggedIn = false
+        userType = ""
     }
 }

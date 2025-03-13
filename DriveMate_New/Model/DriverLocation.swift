@@ -5,6 +5,7 @@ struct DriverLocation: Identifiable, Equatable {
     let id: String
     let name: String
     let coordinate: CLLocationCoordinate2D
+    let iconName: String 
     
     static func == (lhs: DriverLocation, rhs: DriverLocation) -> Bool {
         lhs.id == rhs.id &&

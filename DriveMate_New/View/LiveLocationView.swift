@@ -2,61 +2,132 @@ import SwiftUI
 import MapKit
 
 struct LiveLocationView: View {
-    @State private var position: MapCameraPosition = .automatic
     @State private var selectedDriver: DriverLocation?
     @State private var isCardVisible: Bool = false
+    @State private var mapRegion = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: -6.2088, longitude: 106.8456),
+        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    )
+    @State private var isGridVisible: Bool = true
 
-    let drivers: [DriverLocation] = [
-        DriverLocation(id: "1", name: "Budi", coordinate: .jakarta),
-        DriverLocation(id: "2", name: "Ani", coordinate: .jakarta.offsetRandomly()),
-        DriverLocation(id: "3", name: "Dewi", coordinate: .jakarta.offsetRandomly())
-    ]
+    let drivers = sampleDrivers
 
     var body: some View {
         ZStack {
-            Map(position: $position) {
-                ForEach(drivers) { driver in
-                    Annotation(driver.name, coordinate: driver.coordinate) {
-                        Button {
-                            withAnimation(.easeInOut) {
-                                selectedDriver = driver
-                                isCardVisible = true
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                                withAnimation(.easeInOut) {
-                                    isCardVisible = false
-                                    selectedDriver = nil
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "car.fill")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(12)
-                                .background(
-                                    Circle()
-                                        .fill(Color.blue)
-                                        .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 4)
-                                )
+            Map(coordinateRegion: $mapRegion, annotationItems: drivers) { driver in
+                MapAnnotation(coordinate: driver.coordinate) {
+                    Button {
+                        withAnimation(.easeInOut) {
+                            selectedDriver = driver
+                            isCardVisible = true
                         }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                            withAnimation(.easeInOut) {
+                                isCardVisible = false
+                                selectedDriver = nil
+                            }
+                        }
+                    } label: {
+                        Image(systemName: driver.iconName)
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(12)
+                            .background(
+                                Circle()
+                                    .fill(Color.blue)
+                                    .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 4)
+                            )
                     }
                 }
             }
             .mapStyle(.standard)
             .onAppear {
-                position = .region(.jakartaMetro)
+                mapRegion = MKCoordinateRegion(
+                    center: CLLocationCoordinate2D(latitude: -6.2088, longitude: 106.8456),
+                    span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                )
             }
 
             VStack {
-                Text("🚗 Live Driver Tracking")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-                    .shadow(radius: 6)
-                    .padding(.top, 60)
                 Spacer()
+                
+                if isGridVisible {
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 12) {
+                            ForEach(drivers) { driver in
+                                HStack(spacing: 12) {
+                                    Image(systemName: "person.circle.fill")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.blue)
+                                    
+                                    Text(driver.name)
+                                        .font(.body)
+                                        .foregroundColor(.primary)
+                                    
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(Color.green.opacity(0.2))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .shadow(radius: 4)
+                                .onTapGesture {
+                                    withAnimation {
+                                        mapRegion.center = driver.coordinate
+                                        selectedDriver = driver
+                                        isCardVisible = true
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    .frame(maxHeight: 220) // ✅ Atur tinggi maksimal grid
+                    .padding(.bottom, 8)
+                }
+
+                HStack(spacing: 12) {
+                    Button(action: {
+                        withAnimation {
+                            mapRegion.span.latitudeDelta /= 1.5
+                            mapRegion.span.longitudeDelta /= 1.5
+                        }
+                    }) {
+                        Image(systemName: "plus.magnifyingglass")
+                            .font(.title2)
+                            .padding()
+                            .background(Color.white.opacity(0.9))
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
+                    }
+                    
+                    Button(action: {
+                        withAnimation {
+                            mapRegion.span.latitudeDelta *= 1.5
+                            mapRegion.span.longitudeDelta *= 1.5
+                        }
+                    }) {
+                        Image(systemName: "minus.magnifyingglass")
+                            .font(.title2)
+                            .padding()
+                            .background(Color.white.opacity(0.9))
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
+                    }
+                    
+                    Button(action: {
+                        withAnimation {
+                            isGridVisible.toggle()
+                        }
+                    }) {
+                        Image(systemName: isGridVisible ? "chevron.down.circle.fill" : "chevron.up.circle.fill")
+                            .font(.title2)
+                            .padding()
+                            .background(Color.white.opacity(0.9))
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
+                    }
+                }
+                .padding()
             }
 
             if isCardVisible {

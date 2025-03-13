@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1A2695952D68210900749E24 /* CoreXLSX in Frameworks */ = {isa = PBXBuildFile; productRef = 1A2695942D68210900749E24 /* CoreXLSX */; };
+		1A2695972D68213900749E24 /* CoreXLSX in Frameworks */ = {isa = PBXBuildFile; productRef = 1A2695962D68213900749E24 /* CoreXLSX */; };
+		1A2695992D68214D00749E24 /* CoreXLSX in Frameworks */ = {isa = PBXBuildFile; productRef = 1A2695982D68214D00749E24 /* CoreXLSX */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		1A6477E62D101F89009290A2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A2695952D68210900749E24 /* CoreXLSX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A2695972D68213900749E24 /* CoreXLSX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A2695992D68214D00749E24 /* CoreXLSX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +121,7 @@
 			);
 			name = DriveMate_New;
 			packageProductDependencies = (
+				1A2695942D68210900749E24 /* CoreXLSX */,
 			);
 			productName = DriveMate_New;
 			productReference = 1A6477D42D101F87009290A2 /* DriveMate_New.app */;
@@ -135,6 +145,7 @@
 			);
 			name = DriveMate_NewTests;
 			packageProductDependencies = (
+				1A2695962D68213900749E24 /* CoreXLSX */,
 			);
 			productName = DriveMate_NewTests;
 			productReference = 1A6477E52D101F89009290A2 /* DriveMate_NewTests.xctest */;
@@ -158,6 +169,7 @@
 			);
 			name = DriveMate_NewUITests;
 			packageProductDependencies = (
+				1A2695982D68214D00749E24 /* CoreXLSX */,
 			);
 			productName = DriveMate_NewUITests;
 			productReference = 1A6477EF2D101F89009290A2 /* DriveMate_NewUITests.xctest */;
@@ -195,6 +207,9 @@
 			);
 			mainGroup = 1A6477CB2D101F87009290A2;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1A2695932D68206D00749E24 /* XCRemoteSwiftPackageReference "CoreXLSX" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1A6477D52D101F87009290A2 /* Products */;
 			projectDirPath = "";
@@ -396,6 +411,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "DriveMate-New-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -435,6 +453,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "DriveMate-New-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -591,6 +612,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1A2695932D68206D00749E24 /* XCRemoteSwiftPackageReference "CoreXLSX" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CoreOffice/CoreXLSX";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.14.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1A2695942D68210900749E24 /* CoreXLSX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1A2695932D68206D00749E24 /* XCRemoteSwiftPackageReference "CoreXLSX" */;
+			productName = CoreXLSX;
+		};
+		1A2695962D68213900749E24 /* CoreXLSX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1A2695932D68206D00749E24 /* XCRemoteSwiftPackageReference "CoreXLSX" */;
+			productName = CoreXLSX;
+		};
+		1A2695982D68214D00749E24 /* CoreXLSX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1A2695932D68206D00749E24 /* XCRemoteSwiftPackageReference "CoreXLSX" */;
+			productName = CoreXLSX;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1A6477CC2D101F87009290A2 /* Project object */;
 }

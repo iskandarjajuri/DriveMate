@@ -6,23 +6,24 @@ struct DriverInfoCard: View {
     @State private var isPulsing = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 12) {
                 Image(systemName: "person.fill")
                     .font(.title2)
+                    .foregroundColor(.white)
                     .padding()
                     .background(
                         Circle()
-                            .fill(Color.blue.opacity(0.2))
+                            .fill(Color.blue)
                     )
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(driver.name)
-                        .font(.headline)
+                        .font(.headline.weight(.bold))
                         .foregroundColor(.primary)
                     Text("Available now")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.green)
                 }
 
                 Spacer()
@@ -34,27 +35,33 @@ struct DriverInfoCard: View {
                 }) {
                     Image(systemName: "xmark")
                         .font(.headline)
+                        .foregroundColor(.white)
                         .padding(8)
                         .background(
                             Circle()
-                                .fill(Color.gray.opacity(0.3))
+                                .fill(Color.red)
                         )
                 }
             }
 
             Divider()
+                .background(Color.gray.opacity(0.5))
 
-            HStack(spacing: 12) {
+            HStack(spacing: 16) {
                 InfoBadge(title: "🕒 ETA", value: "5 min")
                 InfoBadge(title: "📍 Distance", value: "1.2 km")
                 InfoBadge(title: "🚗 Speed", value: "60 km/h")
             }
         }
-        .padding()
+        .padding(20)
         .background(
-            VisualEffectBlur(blurStyle: .systemMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
+            VisualEffectBlur(blurStyle: .systemThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 6)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(Color.white.opacity(0.3), lineWidth: 1)
         )
         .scaleEffect(isPulsing ? 1.02 : 1)
         .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: isPulsing)

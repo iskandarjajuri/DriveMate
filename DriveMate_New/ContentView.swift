@@ -1,24 +1,41 @@
-//
-//  ContentView.swift
-//  DriveMate_New
-//
-//  Created by iskandar jajuri on 16/12/24.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        if authViewModel.isCheckingAuth {
+            ProgressView("Memeriksa sesi...")
+                .onAppear {
+                    print("🔄 Memeriksa status autentikasi...")
+                }
+        } else if !authViewModel.isLoggedIn {
+            LoginView()
+                .environmentObject(authViewModel)
+        } else if let user = authViewModel.user {
+            if authViewModel.userType == "admin" {
+                DashboardAdminView(user: user)
+                    .environmentObject(authViewModel)
+            } else {
+                DashboardDriverView(user: user)
+                    .environmentObject(authViewModel)
+            }
+        } else {
+            LoginView()
+                .environmentObject(authViewModel)
         }
-        .padding()
     }
 }
 
 #Preview {
-    ContentView()
+    let previewAuthViewModel = AuthViewModel()
+    previewAuthViewModel.user = UserModel(
+        id: "12345",
+        email: "admin@example.com",
+        password: "dummyPassword",
+        userType: UserType.admin
+    ) // Data dummy
+
+    return ContentView()
+        .environmentObject(previewAuthViewModel)
 }

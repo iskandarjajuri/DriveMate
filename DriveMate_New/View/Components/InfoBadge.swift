@@ -8,16 +8,16 @@ struct InfoBadge: View {
         VStack(alignment: .leading) {
             Text(title)
                 .font(.caption2)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(.black.opacity(0.7))
             Text(value)
                 .font(.caption.weight(.medium))
-                .foregroundColor(.white)
+                .foregroundColor(.black)
         }
         .padding(8)
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white.opacity(0.1))
+                .fill(Color.green.opacity(0.1))
         )
     }
 }
