@@ -14,6 +14,7 @@ struct DashboardDriverView: View {
     @Namespace var scrollNamespace
     @State private var scrollOffset: CGFloat = 0
     @State private var isTapped = false
+    @State private var isNavigating = false
     
     
     // UI Constants
@@ -44,7 +45,7 @@ struct DashboardDriverView: View {
                                         .font(.system(size: 80))
                                         .symbolRenderingMode(.palette)
                                         .foregroundStyle(.white, brandColor)
-                                        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                        .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1)
                                     
                                     VStack(spacing: 4) {
                                         Text("Dashboard Driver")
@@ -64,13 +65,14 @@ struct DashboardDriverView: View {
                                 
                                 // MARK: - Features Grid
                                 LazyVGrid(
-                                    columns: [GridItem(.adaptive(minimum: 160), spacing: 20)],
+                                    columns: [GridItem(.fixed(160)), GridItem(.fixed(160))],
                                     spacing: 20
                                 ) {
                                     Button(action: {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                                        withAnimation(.easeOut(duration: 0.1)) {
                                             showSignaturePad = true
                                             isTapped.toggle()
+                                            isNavigating = true
                                         }
                                     }) {
                                         FeatureTileContent(
@@ -79,11 +81,13 @@ struct DashboardDriverView: View {
                                             color: isTappedIn ? .red : .green
                                         )
                                     }
-                                    .disabled(isTappedIn && isTappedOut)
-                                    .scaleEffect(isTapped ? 0.9 : 1.0)
-                                    .animation(.easeInOut(duration: 0.2), value: isTapped)
+                                    .transaction { $0.animation = nil }
+                                    .animation(nil, value: isNavigating)
+                                    
                                     .onChange(of: showSignaturePad) { _ in
-                                        isTapped = false
+                                        withTransaction(Transaction(animation: nil)) {
+                                            isTapped = false
+                                        }
                                     }
                                     
                                     FeatureTile(
@@ -92,8 +96,8 @@ struct DashboardDriverView: View {
                                         color: isChecklistSubmitted ? .green : .blue,
                                         destination: ChecklistView()
                                     )
-                                    .scaleEffect(isTapped ? 0.9 : 1.0)
-                                    .animation(.easeInOut(duration: 0.2), value: isTapped)
+                                    .transaction { $0.animation = nil }
+                                    .animation(nil, value: isNavigating)
                                     
                                     FeatureTile(
                                         title: isSafetyCommitted ? "Komitmen Disetujui ✅" : "Safety Komitmen",
@@ -101,8 +105,8 @@ struct DashboardDriverView: View {
                                         color: isSafetyCommitted ? .green : .orange,
                                         destination: SafetyCommitmentView()
                                     )
-                                    .scaleEffect(isTapped ? 0.9 : 1.0)
-                                    .animation(.easeInOut(duration: 0.2), value: isTapped)
+                                    .transaction { $0.animation = nil }
+                                    .animation(nil, value: isNavigating)
                                     
                                     FeatureTile(
                                         title: isSOPRead ? "SOP Dibaca ✅" : "Baca SOP Pekerjaan",
@@ -110,8 +114,9 @@ struct DashboardDriverView: View {
                                         color: isSOPRead ? .green : .purple,
                                         destination: SOPView()
                                     )
-                                    .scaleEffect(isTapped ? 0.9 : 1.0)
-                                    .animation(.easeInOut(duration: 0.2), value: isTapped)
+                                    .transaction { $0.animation = nil }
+                                    .animation(nil, value: isNavigating)
+                                    
                                 }
                                 .padding(.horizontal, 16)
                                 
@@ -176,7 +181,7 @@ struct DashboardDriverView: View {
                 }
                 .sheet(isPresented: $showSignaturePad) {
                     SignaturePadView { signature, timestamp in
-                        DispatchQueue.main.async {
+                        withAnimation(nil) {
                             if isTappedIn {
                                 isTappedOut = true
                                 isTappedIn = false
@@ -187,6 +192,7 @@ struct DashboardDriverView: View {
                             showSignaturePad = false
                         }
                     }
+                    .presentationDetents([.medium])
                 }
                 
             }

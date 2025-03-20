@@ -1,10 +1,12 @@
 import SwiftUI
 
+import SwiftUI
+
 struct DriverInfoCard: View {
     let driver: DriverLocation
     @Binding var isVisible: Bool
     @State private var isPulsing = false
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 12) {
@@ -27,7 +29,7 @@ struct DriverInfoCard: View {
                 }
 
                 Spacer()
-                
+
                 Button(action: {
                     withAnimation {
                         isVisible = false
@@ -55,16 +57,18 @@ struct DriverInfoCard: View {
         }
         .padding(20)
         .background(
-            VisualEffectBlur(blurStyle: .systemThinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 6)
+            Group {
+                #if targetEnvironment(simulator)
+                Color.white.opacity(0.2)
+                #else
+                VisualEffectBlur(blurStyle: .systemThinMaterial)
+                #endif
+            }
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(Color.white.opacity(0.3), lineWidth: 1)
-        )
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 3)
         .scaleEffect(isPulsing ? 1.02 : 1)
-        .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: isPulsing)
+        .animation(.easeInOut(duration: 1).repeatCount(3, autoreverses: true), value: isPulsing)
         .onAppear {
             isPulsing = true
         }

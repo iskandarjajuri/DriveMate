@@ -2,56 +2,39 @@ import SwiftUI
 
 struct SOPView: View {
     @State private var showAlert = false
+    @State private var isNavigating = false
     @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
         NavigationStack {
-            List {
-                // MARK: - Keselamatan (Safety)
-                Section(header: Text("Keselamatan")
-                    .font(.headline)
-                    .foregroundColor(.blue)) {
-                    
-                    SOPRow(icon: "car.side.fill", title: "Periksa Kendaraan", description: "Pastikan kendaraan dalam kondisi prima sebelum berangkat.", color: .blue)
-                    
-                    SOPRow(icon: "shield.fill", title: "Gunakan Sabuk Pengaman", description: "Selalu gunakan sabuk pengaman dan pastikan penumpang juga menggunakannya.", color: .red)
-                    
-                    SOPRow(icon: "speedometer", title: "Patuhi Batas Kecepatan", description: "Jangan melebihi batas kecepatan yang telah ditentukan.", color: .orange)
-                    
-                    SOPRow(icon: "phone.down.fill", title: "Hindari Penggunaan Ponsel", description: "Gunakan hands-free jika perlu menerima panggilan.", color: .purple)
-                    
-                    SOPRow(icon: "cloud.rain.fill", title: "Berhati-hati di Cuaca Ekstrem", description: "Kurangi kecepatan saat hujan atau kondisi jalan licin.", color: .gray)
+            ScrollView {
+                LazyVStack(spacing: 12) { // ✅ LazyVStack untuk menghindari re-render berlebih
+                    // MARK: - Keselamatan (Safety)
+                    Section(header: Text("Keselamatan")
+                        .font(.headline)
+                        .foregroundColor(.blue)) {
+                        
+                        SOPRow(icon: "car.side.fill", title: "Periksa Kendaraan", description: "Pastikan kendaraan dalam kondisi prima sebelum berangkat.", color: .blue).id(UUID())
+
+                        SOPRow(icon: "shield.fill", title: "Gunakan Sabuk Pengaman", description: "Selalu gunakan sabuk pengaman dan pastikan penumpang juga menggunakannya.", color: .red).id(UUID())
+
+                        SOPRow(icon: "speedometer", title: "Patuhi Batas Kecepatan", description: "Jangan melebihi batas kecepatan yang telah ditentukan.", color: .orange).id(UUID())
+                    }
+
+                    // MARK: - Keramahan (Hospitality)
+                    Section(header: Text("Keramahan")
+                        .font(.headline)
+                        .foregroundColor(.green)) {
+                        
+                        SOPRow(icon: "hand.wave.fill", title: "Sapa dengan Ramah", description: "Selalu menyapa penumpang atau pelanggan dengan senyuman.", color: .green).id(UUID())
+
+                        SOPRow(icon: "bubble.left.and.bubble.right.fill", title: "Berkomunikasi dengan Baik", description: "Gunakan bahasa yang sopan dan profesional.", color: .blue).id(UUID())
+                    }
                 }
-                
-                // MARK: - Keramahan (Hospitality)
-                Section(header: Text("Keramahan")
-                    .font(.headline)
-                    .foregroundColor(.green)) {
-                    
-                    SOPRow(icon: "hand.wave.fill", title: "Sapa dengan Ramah", description: "Selalu menyapa penumpang atau pelanggan dengan senyuman.", color: .green)
-                    
-                    SOPRow(icon: "bubble.left.and.bubble.right.fill", title: "Berkomunikasi dengan Baik", description: "Gunakan bahasa yang sopan dan profesional.", color: .blue)
-                    
-                    SOPRow(icon: "hand.thumbsup.fill", title: "Bantu Penumpang", description: "Jika diperlukan, bantu penumpang memasukkan atau mengeluarkan barang.", color: .yellow)
-                }
-                
-                // MARK: - Tanggung Jawab Pengemudi
-                Section(header: Text("Tanggung Jawab Pengemudi")
-                    .font(.headline)
-                    .foregroundColor(.orange)) {
-                    
-                    SOPRow(icon: "clock.fill", title: "Datang Tepat Waktu", description: "Pastikan selalu datang sesuai jadwal.", color: .cyan)
-                    
-                    SOPRow(icon: "doc.text.fill", title: "Lengkapi Dokumen Perjalanan", description: "Pastikan surat-surat kendaraan dan identitas tersedia setiap saat.", color: .brown)
-                    
-                    SOPRow(icon: "fuelpump.fill", title: "Isi Bahan Bakar Sesuai Prosedur", description: "Pastikan kendaraan memiliki bahan bakar yang cukup sebelum perjalanan.", color: .blue)
-                    
-                    SOPRow(icon: "wrench.and.screwdriver.fill", title: "Lapor Kendala Teknis", description: "Segera laporkan jika ada kerusakan atau masalah pada kendaraan.", color: .gray)
-                    
-                    SOPRow(icon: "heart.fill", title: "Jaga Kesehatan", description: "Pastikan dalam kondisi sehat dan fit sebelum mengemudi.", color: .red)
-                }
+                .padding(.horizontal)
             }
             .navigationTitle("SOP Pengemudi")
+            .transaction { $0.animation = nil } // ✅ Menghindari animasi berlebih
             
             // Tombol Mengerti
             Button(action: {
@@ -62,8 +45,11 @@ struct SOPView: View {
                     .foregroundColor(.white)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .cornerRadius(10)
+                    .background(
+                        Color.blue
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 1) // ✅ Shadow lebih ringan
+                    )
                     .padding()
             }
             .alert(isPresented: $showAlert) {
@@ -71,7 +57,7 @@ struct SOPView: View {
                     title: Text("Terima Kasih"),
                     message: Text("Anda telah memahami SOP Pengemudi."),
                     dismissButton: .default(Text("OK")) {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withTransaction(Transaction(animation: nil)) { // ✅ Menghindari animasi berlebih
                             presentationMode.wrappedValue.dismiss()
                         }
                     }

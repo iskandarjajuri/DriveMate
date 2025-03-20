@@ -12,3 +12,4 @@ extension CLLocationCoordinate2D {
         )
     }
 }
+

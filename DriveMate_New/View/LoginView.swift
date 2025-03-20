@@ -4,6 +4,7 @@ struct LoginView: View {
     @StateObject private var viewModel = AuthViewModel()
     @FocusState private var focusedField: Field?
     @State private var navigateToDashboard: Bool = false
+    @State private var isNavigating: Bool = false
     
     enum Field { case email, password }
     
@@ -35,8 +36,8 @@ struct LoginView: View {
                         Image(systemName: "car.2.fill")
                             .font(.system(size: 64, weight: .bold))
                             .foregroundColor(brandColor)
-                            .shadow(color: brandColor.opacity(0.2), radius: 8, x: 0, y: 4)
-                            .symbolEffect(.pulse)
+                            .shadow(color: brandColor.opacity(0.2), radius: 3, x: 0, y: 2) // Shadow lebih ringan
+                            .symbolEffect(.pulse, options: .repeat(3))
                         
                         Text("DriveMate")
                             .font(.system(size: 36, weight: .heavy, design: .rounded))
@@ -61,7 +62,7 @@ struct LoginView: View {
                                 .padding(14)
                                 .background(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.white.opacity(0.95))
+                                        .fill(Color(UIColor.secondarySystemBackground)) // Warna solid lebih ringan
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 10)
                                                 .stroke(focusedField == .email ? brandColor : Color.gray.opacity(0.2), lineWidth: 1)
@@ -80,7 +81,7 @@ struct LoginView: View {
                                 .padding(14)
                                 .background(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.white.opacity(0.95))
+                                        .fill(Color(UIColor.secondarySystemBackground)) // Warna solid lebih ringan
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 10)
                                                 .stroke(focusedField == .password ? brandColor : Color.gray.opacity(0.2), lineWidth: 1)
@@ -113,10 +114,11 @@ struct LoginView: View {
                         .background(
                             brandColor
                                 .cornerRadius(12)
-                                .shadow(color: brandColor.opacity(0.3), radius: 8, y: 4)
+                                .shadow(color: brandColor.opacity(0.3), radius: 3, y: 2) // Shadow lebih ringan
                         )
                         .foregroundColor(.white)
                         .scaleEffect(viewModel.isLoading ? 0.97 : 1)
+                        .transaction { $0.animation = nil } // Mencegah animasi berlebih
                     }
                     .disabled(viewModel.isLoading || !viewModel.isFormValid)
                     .opacity(viewModel.isLoading || !viewModel.isFormValid ? 0.7 : 1)
@@ -170,12 +172,17 @@ struct LoginView: View {
                         case .admin:
                             DashboardAdminView(user: user)
                                 .environmentObject(viewModel)
+                                .transaction { $0.animation = nil } // Mencegah animasi berlebih
+                                .presentationDetents([.medium]) // Menyesuaikan ukuran presentasi modal
                         case .driver:
                             DashboardDriverView(user: user)
                                 .environmentObject(viewModel)
+                                .transaction { $0.animation = nil } // Mencegah animasi berlebih
+                                .presentationDetents([.medium]) // Menyesuaikan ukuran presentasi modal
                         }
                     }
                 }
+                .animation(nil, value: isNavigating)
             }
             .onTapGesture {
                 hideKeyboard()

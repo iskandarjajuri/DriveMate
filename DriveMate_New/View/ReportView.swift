@@ -3,11 +3,12 @@ import Foundation
 
 struct ReportsView: View {
     let reports: [DriverReport]
+    @State private var isNavigating: Bool = false // Added state for navigation
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                LazyVStack(spacing: 16) {
                     ForEach(reports) { report in
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
@@ -29,18 +30,21 @@ struct ReportsView: View {
                         }
                         .padding()
                         .background(
-                            Color.white.opacity(0.9)
-                                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .fill(Color(UIColor.secondarySystemBackground))
+                                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                         )
                         .padding(.horizontal)
+                        .overlay(Divider(), alignment: .bottom)
                     }
                 }
                 .padding(.vertical)
             }
             .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle("Reports")
+            .transaction { $0.animation = nil } // Prevent excessive animation
         }
+        .animation(nil, value: isNavigating) // Disable animation for navigation
     }
 }
 
@@ -67,13 +71,13 @@ struct ReportRow: View {
         }
     }
 }
+
 // MARK: - Preview
 struct ReportsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             ReportsView(reports: sampleReports)
-                .preferredColorScheme(.light) // atau .dark untuk melihat versi gelap
+                .preferredColorScheme(.light)
         }
     }
 }
-

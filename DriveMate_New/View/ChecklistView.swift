@@ -17,6 +17,7 @@ struct ChecklistView: View {
     
     @State private var showAlert = false
     @State private var alertMessage = ""
+    @State private var isNavigating = false
 
     var allChecked: Bool {
         return checklistItems.allSatisfy { $0.1 }
@@ -37,22 +38,20 @@ struct ChecklistView: View {
                                 .foregroundColor(checklistItems[index].1 ? .green : .red)
                                 .font(.title)
                                 .scaleEffect(checklistItems[index].1 ? 1.2 : 1.0)
-                                .animation(.spring(response: 0.4, dampingFraction: 0.6, blendDuration: 0.3), value: checklistItems[index].1)
-
+                            
                             Text(checklistItems[index].0)
                                 .font(.headline)
                                 .foregroundColor(.primary)
-
+                            
                             Spacer()
-
+                            
                             Toggle("", isOn: $checklistItems[index].1)
                                 .labelsHidden()
-                                .animation(.easeInOut(duration: 0.3), value: checklistItems[index].1)
                         }
                         .padding()
                         .background(RoundedRectangle(cornerRadius: 10).fill(Color(.systemGray6)))
-                        .shadow(radius: 3)
-                        .animation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.3), value: checklistItems[index].1)
+                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1) // ✅ Shadow lebih ringan
+                        .animation(nil, value: checklistItems[index].1) // ✅ Hanya satu animasi
                     }
                 }
                 .padding()
@@ -81,7 +80,7 @@ struct ChecklistView: View {
                     title: Text("Feedback"),
                     message: Text(alertMessage),
                     dismissButton: .default(Text("OK")) {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withTransaction(Transaction(animation: nil)) { // ✅ Menghindari animasi berlebih
                             presentationMode.wrappedValue.dismiss()
                         }
                     }
@@ -92,6 +91,7 @@ struct ChecklistView: View {
         }
         .padding(.horizontal)
         .navigationTitle("Checklist")
+        .transaction { $0.animation = nil } // ✅ Menghindari animasi lambat
     }
 }
 

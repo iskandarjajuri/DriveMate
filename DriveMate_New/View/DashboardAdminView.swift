@@ -7,11 +7,13 @@ struct DashboardAdminView: View {
     let user: UserModel
     @EnvironmentObject var viewModel: AuthViewModel
     @State private var showLogoutAlert = false
-    @State private var animateProfile = false
+    @State private var profileScale: CGFloat = 1.0
+    @State private var profileBlur: CGFloat = 0.0
     @Namespace var scrollNamespace
     @State private var scrollOffset: CGFloat = 0
     @State private var showDownloadSuccess = false
     @State private var downloadedFileURL: URL?
+    @State private var isNavigating = false
     
     let reports: [DriverReport] = sampleReports
     
@@ -37,20 +39,11 @@ struct DashboardAdminView: View {
                     // MARK: - Scroll Content
                     ScrollViewReader { proxy in
                         ScrollView(.vertical, showsIndicators: false) {
-                            VStack(spacing: 30) {
+                        LazyVStack(spacing: 30) {
                                 
                                 // MARK: - Header Section
                                 GeometryReader { geo in
                                     let minY = geo.frame(in: .named("scroll")).minY
-                                    #if os(iOS)
-                                    let screenHeight = UIScreen.main.bounds.height
-                                    #else
-                                    let screenHeight = 800.0 // nilai default jika macOS atau Canvas
-                                    #endif
-                                    let progress = minY / screenHeight
-                                    let scale = 1 + (-progress * 0.25)
-                                    let blur = min(5, -minY * 0.05)
-                                    
                                     VStack(spacing: 15) {
                                         // Profile Image
                                         Image(systemName: "person.crop.circle.fill")
@@ -63,14 +56,7 @@ struct DashboardAdminView: View {
                                                     center: .center
                                                 )
                                             )
-                                            .scaleEffect(animateProfile ? 1.05 * scale : scale)
-                                            .offset(y: animateProfile ? -5 : 0)
-                                            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
-                                            .onAppear {
-                                                withAnimation(.easeInOut(duration: 1.5).repeatForever()) {
-                                                    animateProfile.toggle()
-                                                }
-                                            }
+                                            
                                         
                                         // User Info
                                         VStack(spacing: 5) {
@@ -82,10 +68,8 @@ struct DashboardAdminView: View {
                                                 .font(.subheadline)
                                                 .foregroundColor(.white.opacity(0.9))
                                         }
-                                        .blur(radius: blur)
                                     }
                                     .frame(width: geo.size.width, height: 280 + (minY > 0 ? minY : 0))
-                                    .offset(y: -minY * 0.6)
                                 }
                                 .frame(height: 280)
                                 .id("header")
@@ -102,6 +86,7 @@ struct DashboardAdminView: View {
                                         destination: LiveLocationView()
                                     )
                                     .id("liveTracking")
+                                    .transaction { $0.animation = nil }
                                     
                                     FeatureTile(
                                         title: "Reports",
@@ -110,8 +95,12 @@ struct DashboardAdminView: View {
                                         destination: ReportsView(reports: reports)
                                     )
                                     .id("reports")
+                                    .transaction { $0.animation = nil }
                                     
-                                    Button(action: downloadReports) {
+                                    Button(action: {
+                                        isNavigating = true
+                                        downloadReports()
+                                    }) {
                                         FeatureTileContent(
                                             title: "Download Reports",
                                             icon: "arrow.down.doc.fill",
@@ -119,6 +108,7 @@ struct DashboardAdminView: View {
                                         )
                                     }
                                     .id("download")
+                                    .transaction { $0.animation = nil }
                                 }
                                 .contentMargins(.horizontal, 16, for: .scrollContent)
                                 .padding(.horizontal, 16)
@@ -138,7 +128,7 @@ struct DashboardAdminView: View {
                                             }
                                         }
                                         .padding(.horizontal, 16)
-                                        .animation(.easeInOut(duration: 0.3), value: reports.count)
+                                        .animation(.easeOut(duration: 0.15), value: reports.count) // ✅ Lebih cepat
                                     }
                                 }
                                 .padding(.horizontal)
@@ -154,11 +144,15 @@ struct DashboardAdminView: View {
                                 }
                             )
                             .onPreferenceChange(ViewOffsetKey.self) { value in
-                                self.scrollOffset = value
+                                if abs(scrollOffset - value) > 30 { // ✅ Hanya update jika perubahan cukup besar
+                                    print("Scroll Offset: \(value)") // ✅ Debugging perubahan scroll
+                                    self.scrollOffset = value
+                                }
                             }
                         }
                         .coordinateSpace(name: "scroll")
                         .contentMargins(.top, 16, for: .scrollContent)
+                        .animation(nil, value: isNavigating)
                     }
                 }
                 
@@ -176,7 +170,7 @@ struct DashboardAdminView: View {
                                 )
                             )
                             .padding(12)
-                            .background(.ultraThinMaterial, in: Circle())
+                            .background(Color.white.opacity(0.2), in: Circle()) // ✅ Lebih ringan untuk emulator
                         }
                     }
                 }
@@ -294,6 +288,7 @@ struct FeatureTile<Destination: View>: View {
             FeatureTileContent(title: title, icon: icon, color: color)
         }
         .buttonStyle(ScaleButtonStyle())
+        .transaction { $0.animation = nil }
     }
 }
 
@@ -324,7 +319,7 @@ struct ReportCard: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                .shadow(color: .black.opacity(0.1), radius: 3, x: 0, y: 1) // ✅ Lebih ringan
         )
         .padding(.horizontal)
     }
@@ -351,8 +346,6 @@ struct StatusIndicator: View {
 struct ScaleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1)
-            .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
     }
 }
 
